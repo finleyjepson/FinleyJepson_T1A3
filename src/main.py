@@ -1,3 +1,5 @@
+from getpass import getpass
+
 users = {
 "user1": "password1",
 "user2": "password2",
@@ -8,7 +10,7 @@ def Login_Function():
     while True:
         username = input("Username: ")
         if username in users:
-            password = input("Password: ")
+            password = getpass()
             if password == users[username]:
                 print("Login successful!")
                 Welcome_User(username)
