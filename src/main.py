@@ -1,5 +1,31 @@
+users = {
+"user1": "password1",
+"user2": "password2",
+"user3": "password3"
+}
+
 def Login_Function():
-    pass
+    while True:
+        username = input("Username: ")
+        if username in users:
+            password = input("Password: ")
+            if password == users[username]:
+                print("Login successful!")
+                Welcome_User(username)
+                break
+            else:
+                print("Invalid password. Please try again.")
+                try_again = input("Would you like to try again? (y/n): ")
+                if try_again.lower() == "n":
+                    break
+        else:
+            print("Invalid username. Please try again.")
+            try_again = input("Would you like to try again? (y/n): ")
+            if try_again.lower() == "n":
+                break
+
+def Welcome_User(username):
+    print(f"Welcome {username}!")
 
 def Register_Function():
     pass
