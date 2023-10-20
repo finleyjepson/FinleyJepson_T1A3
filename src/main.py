@@ -1,17 +1,23 @@
 from getpass import getpass
-
-users = {
-"user1": "password1",
-"user2": "password2",
-"user3": "password3"
-}
+import hashlib
+import sqlite3
 
 def Login_Function():
     while True:
         username = input("Username: ")
-        if username in users:
+        conn = sqlite3.connect('credentials.db')
+        cur = conn.cursor()
+        # Execute a SELECT statement to retrieve a password for the given username
+        cur.execute("SELECT password FROM credentials WHERE username=?", (username,))
+        result = cur.fetchone()
+        if result:
+            # Get the password
             password = getpass()
-            if password == users[username]:
+            # Hash the password
+            enc = password.encode()
+            hash1 = hashlib.md5(enc).hexdigest()
+            # Compare the hashes
+            if hash1 == result[0]:
                 print("Login successful!")
                 Welcome_User(username)
                 break
@@ -30,16 +36,42 @@ def Welcome_User(username):
     print(f"Welcome {username}!")
 
 def Register_Function():
-    pass
+    # Get the username and password from the user
+    username = input("Enter username: ")
+    pwd = input("Enter password: ")
+    conf_pwd = input("Confirm password: ")
+
+    # Confirm that the passwords match
+    if conf_pwd == pwd:
+        # Hash the password
+        enc = conf_pwd.encode()
+        hash1 = hashlib.md5(enc).hexdigest()
+
+        # Store the username and password in the database
+        conn = sqlite3.connect('credentials.db')
+        cur = conn.cursor()
+        cur.execute("INSERT INTO credentials (username, password) VALUES (?, ?)", (username, hash1))
+        conn.commit()
+        conn.close()
+
+        # Let the user know that they're registered
+        print("You have registered successfully!")
+    else:
+        print("Password is not same as above! \n")
 
 def main():
+    # Menu loop
     while True:
         print ("Welcome to the main menu")
         print ("Please select from the following options:")
         print ("1. Login")
         print ("2. Register")
         print ("3. Exit")
+        
+        # Get user selection
         selection = input("Please enter your selection: ")
+        
+        # Respond to selection
         if selection == "1":
             Login_Function()
         elif selection == "2":
