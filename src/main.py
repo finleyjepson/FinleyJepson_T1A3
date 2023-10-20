@@ -36,28 +36,44 @@ def Welcome_User(username):
     print(f"Welcome {username}!")
 
 def Register_Function():
-    # Get the username and password from the user
-    username = input("Enter username: ")
-    pwd = input("Enter password: ")
-    conf_pwd = input("Confirm password: ")
+    while True:
+        # Get the username and password from the user
+        username = input("Enter username: ")
+        password = getpass()
+        conf_password = getpass(prompt="Confirm password: ")
 
-    # Confirm that the passwords match
-    if conf_pwd == pwd:
-        # Hash the password
-        enc = conf_pwd.encode()
-        hash1 = hashlib.md5(enc).hexdigest()
+        # Confirm that the passwords match
+        if conf_password == password:
+            # Hash the password
+            enc = conf_password.encode()
+            hash1 = hashlib.md5(enc).hexdigest()
 
-        # Store the username and password in the database
-        conn = sqlite3.connect('credentials.db')
-        cur = conn.cursor()
-        cur.execute("INSERT INTO credentials (username, password) VALUES (?, ?)", (username, hash1))
-        conn.commit()
-        conn.close()
+            # Check if the username already exists in the database
+            conn = sqlite3.connect('credentials.db')
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM credentials WHERE username=?", (username,))
+            result = cur.fetchone()
+            if result:
+                print("Username already exists. Please try again with a different username.")
+                try_again = input("Would you like to try again? (y/n): ")
+                if try_again.lower() == "n":
+                    break
+            else:
+                # Store the username and password in the database
+                cur.execute("INSERT INTO credentials (username, password) VALUES (?, ?)", (username, hash1))
+                conn.commit()
+                conn.close()
 
-        # Let the user know that they're registered
-        print("You have registered successfully!")
-    else:
-        print("Password is not same as above! \n")
+                # Let the user know that they're registered
+                print("You have registered successfully!")
+                back_to_main = input("Would you like to go back to the main menu? (y/n): ")
+                if back_to_main.lower() == "y":
+                    break
+        else:
+            print("Password is not same as above! \n")
+            try_again = input("Would you like to try again? (y/n): ")
+            if try_again.lower() == "n":
+                break
 
 def main():
     # Menu loop
