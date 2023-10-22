@@ -51,6 +51,82 @@ def Login_Function():
 
 def Welcome_User(username):
     print(f"Welcome {username}!")
+    while True:
+        print("Please select from the following options:")
+        print("1. Display account information")
+        print("2. Edit account information")
+        print("3. Add account information")
+        print("4. Logout")
+        selection = input("Please enter your selection: ")
+        if selection == "1":
+            # Display account information
+            conn = sqlite3.connect('credentials.db')
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM credentials WHERE username=?", (username,))
+            result = cur.fetchone()
+            print(f"ID: {result[0]}")
+            print(f"Username: {result[1]}")
+            print(f"First Name: {result[3]}")
+            print(f"Last Name: {result[4]}")
+            print(f"Email: {result[5]}")
+            print(f"Phone: {result[6]}")
+            conn.close()
+        elif selection == "2":
+            # Edit account information
+            conn = sqlite3.connect('credentials.db')
+            cur = conn.cursor()
+            print("Please select what you would like to edit:")
+            print("1. First Name")
+            print("2. Last Name")
+            print("3. Email")
+            print("4. Phone")
+            edit_selection = input("Please enter your selection: ")
+            if edit_selection == "1":
+                new_first_name = input("Enter new first name: ")
+                # Update the user's first name in the database
+                cur.execute("UPDATE credentials SET firstname=? WHERE username=?", (new_first_name, username))
+                conn.commit()
+                print("First name updated successfully!")
+            elif edit_selection == "2":
+                new_last_name = input("Enter new last name: ")
+                # Update the user's last name in the database
+                cur.execute("UPDATE credentials SET lastname=? WHERE username=?", (new_last_name, username))
+                conn.commit()
+                print("Last name updated successfully!")
+            elif edit_selection == "3":
+                new_email = input("Enter new email: ")
+                # Update the user's email in the database
+                cur.execute("UPDATE credentials SET email=? WHERE username=?", (new_email, username))
+                conn.commit()
+                print("Email updated successfully!")
+            elif edit_selection == "4":
+                new_phone = input("Enter new phone number: ")
+                # Update the user's phone number in the database
+                cur.execute("UPDATE credentials SET phone=? WHERE username=?", (new_phone, username))
+                conn.commit()
+                print("Phone number updated successfully!")
+            else:
+                print("Invalid selection. Please try again.")
+            conn.close()
+        elif selection == "3":
+            # Add account information
+            conn = sqlite3.connect('credentials.db')
+            cur = conn.cursor()
+            new_first_name = input("Enter first name: ")
+            new_last_name = input("Enter last name: ")
+            new_email = input("Enter email: ")
+            new_phone = input("Enter phone number: ")
+            # Update the user's information in the database
+            cur.execute("UPDATE credentials SET firstname=?, lastname=?, email=?, phone=? WHERE username=?", (new_first_name, new_last_name, new_email, new_phone, username))
+            conn.commit()
+            conn.close()
+            print("Account information added successfully!")
+        elif selection == "4":
+            # Logout
+            print("Logging out...")
+            break
+        else:
+            print("Invalid selection. Please try again.")
 
 def Register_Function():
     while True:
