@@ -2,6 +2,25 @@ from getpass import getpass
 import hashlib
 import sqlite3
 import time
+import psutil
+import curses
+
+def monitor_performance(stdscr):
+    curses.curs_set(0)
+    stdscr.addstr(0, 0, "CPU usage: | Memory usage: ")
+    stdscr.refresh()
+    while True:
+        cpu_percent = psutil.cpu_percent()
+        mem_stats = psutil.virtual_memory()
+
+        mem_percent = mem_stats.used / mem_stats.total * 100
+        stdscr.addstr(0, 11, f"{cpu_percent}% | ")
+        stdscr.addstr(0, 28, f"{mem_percent:.2f}%", curses.A_BOLD)
+        stdscr.refresh()
+        time.sleep(1)
+        key = stdscr.getch()
+        if key != curses.ERR:
+            break
 
 def Login_Function():
     failed_attempts = {}
@@ -56,7 +75,8 @@ def Welcome_User(username):
         print("1. Display account information")
         print("2. Edit account information")
         print("3. Add account information")
-        print("4. Logout")
+        print("4. System Performance")
+        print("5. Logout")
         selection = input("Please enter your selection: ")
         if selection == "1":
             # Display account information
@@ -122,6 +142,8 @@ def Welcome_User(username):
             conn.close()
             print("Account information added successfully!")
         elif selection == "4":
+            curses.wrapper(monitor_performance)
+        elif selection == "5":
             # Logout
             print("Logging out...")
             break
