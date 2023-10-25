@@ -6,21 +6,27 @@ import psutil
 import curses
 
 def monitor_performance(stdscr):
-    curses.curs_set(0)
-    stdscr.addstr(0, 0, "CPU usage: | Memory usage: ")
-    stdscr.refresh()
-    while True:
-        cpu_percent = psutil.cpu_percent()
-        mem_stats = psutil.virtual_memory()
-
-        mem_percent = mem_stats.used / mem_stats.total * 100
-        stdscr.addstr(0, 11, f"{cpu_percent}% | ")
-        stdscr.addstr(0, 28, f"{mem_percent:.2f}%", curses.A_BOLD)
+    try:
+        curses.curs_set(0)
+        stdscr.addstr(0, 0, "CPU usage: | Memory usage: ")
         stdscr.refresh()
-        time.sleep(1)
-        key = stdscr.getch()
-        if key != curses.ERR:
-            break
+        stdscr.nodelay(True)  # Set the window to non-blocking mode
+        while True:
+            cpu_percent = psutil.cpu_percent()
+            mem_stats = psutil.virtual_memory()
+
+            mem_percent = mem_stats.used / mem_stats.total * 100
+            stdscr.addstr(0, 11, f"{cpu_percent}% | ")
+            stdscr.addstr(0, 28, f"{mem_percent:.2f}%", curses.A_BOLD)
+            stdscr.refresh()
+            time.sleep(1)
+            # Check for user input
+            if stdscr.getch() != curses.ERR:
+                break
+        stdscr.nodelay(False)  # Set the window back to blocking mode
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 
 def Login_Function():
     failed_attempts = {}
