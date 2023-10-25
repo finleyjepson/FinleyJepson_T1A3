@@ -9,24 +9,33 @@ from email_validator import validate_email, EmailNotValidError
 
 def monitor_performance(stdscr):
     try:
+        # Hide the cursor
         curses.curs_set(0)
+
         stdscr.addstr(0, 0, "CPU usage: | Memory usage: ")
         stdscr.addstr("\n Press any key to go back...")
         stdscr.refresh()
-        stdscr.nodelay(True)  # Set the window to non-blocking mode
+
+        # Set the window to non-blocking mode
+        stdscr.nodelay(True)
+
         while True:
             cpu_percent = psutil.cpu_percent()
             mem_stats = psutil.virtual_memory()
-
             mem_percent = mem_stats.used / mem_stats.total * 100
+
             stdscr.addstr(0, 11, f"{cpu_percent}% | ")
             stdscr.addstr(0, 28, f"{mem_percent:.2f}%", curses.A_BOLD)
+
             stdscr.refresh()
             time.sleep(1)
-            # Check for user input
+
             if stdscr.getch() != curses.ERR:
                 break
-        stdscr.nodelay(False)  # Set the window back to blocking mode
+
+        # Set the window back to blocking mode
+        stdscr.nodelay(False)
+
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -158,11 +167,17 @@ def Welcome_User(username):
                             else:
                                 continue
                 elif edit_selection == "4":
-                    new_phone = input("Enter new phone number: ")
-                    # Update the user's phone number in the database
-                    cur.execute("UPDATE credentials SET phone=? WHERE username=?", (new_phone, username))
-                    conn.commit()
-                    print("Phone number updated successfully!")
+                    while True:
+                        new_phone = input("Enter new phone number: ")
+                        # Check if the phone number is valid
+                        if re.match(r'^\d{10}$', new_phone):
+                            # Update the user's phone number in the database
+                            cur.execute("UPDATE credentials SET phone=? WHERE username=?", (new_phone, username))
+                            conn.commit()
+                            print("Phone number updated successfully!")
+                            break
+                        else:
+                            print("Invalid phone number. Please enter a valid phone number.")
                 elif edit_selection == "5":
                     # Go back
                     continue
