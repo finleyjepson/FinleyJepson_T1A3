@@ -4,11 +4,14 @@ import sqlite3
 import time
 import psutil
 import curses
+import re 
+from email_validator import validate_email, EmailNotValidError
 
 def monitor_performance(stdscr):
     try:
         curses.curs_set(0)
         stdscr.addstr(0, 0, "CPU usage: | Memory usage: ")
+        stdscr.addstr("\n Press any key to go back...")
         stdscr.refresh()
         stdscr.nodelay(True)  # Set the window to non-blocking mode
         while True:
@@ -88,9 +91,8 @@ def Welcome_User(username):
         print("Please select from the following options:")
         print("1. Display account information")
         print("2. Edit account information")
-        print("3. Add account information")
-        print("4. System Performance")
-        print("5. Logout")
+        print("3. System Performance")
+        print("4. Logout")
         selection = input("Please enter your selection: ")
         if selection == "1":
             # Display account information
@@ -123,6 +125,7 @@ def Welcome_User(username):
                 print("2. Last Name")
                 print("3. Email")
                 print("4. Phone")
+                print("5. Go back")
                 edit_selection = input("Please enter your selection: ")
                 if edit_selection == "1":
                     new_first_name = input("Enter new first name: ")
@@ -137,17 +140,32 @@ def Welcome_User(username):
                     conn.commit()
                     print("Last name updated successfully!")
                 elif edit_selection == "3":
-                    new_email = input("Enter new email: ")
-                    # Update the user's email in the database
-                    cur.execute("UPDATE credentials SET email=? WHERE username=?", (new_email, username))
-                    conn.commit()
-                    print("Email updated successfully!")
+                    while True:
+                        new_email = input("Enter new email: ")
+                        try:
+                            # Validate the email entered by the user
+                            valid = validate_email(new_email)
+                            # Update the user's email in the database
+                            cur.execute("UPDATE credentials SET email=? WHERE username=?", (new_email, username))
+                            conn.commit()
+                            print("Email updated successfully!")
+                            break
+                        except EmailNotValidError as e:
+                            print(f"Invalid email: {e}")
+                            go_back = input("Would you like to try again? (y/n): ")
+                            if go_back.lower() == "n":
+                                break
+                            else:
+                                continue
                 elif edit_selection == "4":
                     new_phone = input("Enter new phone number: ")
                     # Update the user's phone number in the database
                     cur.execute("UPDATE credentials SET phone=? WHERE username=?", (new_phone, username))
                     conn.commit()
                     print("Phone number updated successfully!")
+                elif edit_selection == "5":
+                    # Go back
+                    continue
                 else:
                     print("Invalid selection. Please try again.")
             except sqlite3.Error as e:
@@ -156,26 +174,8 @@ def Welcome_User(username):
                 if 'conn' in locals():
                     conn.close()
         elif selection == "3":
-            # Add account information
-            try:
-                conn = sqlite3.connect('credentials.db')
-                cur = conn.cursor()
-                new_first_name = input("Enter first name: ")
-                new_last_name = input("Enter last name: ")
-                new_email = input("Enter email: ")
-                new_phone = input("Enter phone number: ")
-                # Update the user's information in the database
-                cur.execute("UPDATE credentials SET firstname=?, lastname=?, email=?, phone=? WHERE username=?", (new_first_name, new_last_name, new_email, new_phone, username))
-                conn.commit()
-                print("Account information added successfully!")
-            except sqlite3.Error as e:
-                print(f"An error occurred with the database: {e}")
-            finally:
-                if 'conn' in locals():
-                    conn.close()
-        elif selection == "4":
             curses.wrapper(monitor_performance)
-        elif selection == "5":
+        elif selection == "4":
             # Logout
             print("Logging out...")
             break
