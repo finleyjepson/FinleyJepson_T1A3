@@ -1,11 +1,12 @@
-from getpass import getpass
-import hashlib
+# Libraries
+import curses
+import re
 import sqlite3
 import time
-import psutil
-import curses
-import re 
 from email_validator import validate_email, EmailNotValidError
+from getpass import getpass
+import hashlib
+import psutil
 
 def monitor_performance(stdscr):
     try:
@@ -40,7 +41,7 @@ def monitor_performance(stdscr):
         print(f"An error occurred: {e}")
 
 
-def Login_Function():
+def login_function():
     failed_attempts = {}
     while True:
         try:
@@ -69,7 +70,7 @@ def Login_Function():
                     # Reset the failed attempts count
                     failed_attempts[username] = 0
                     conn.close()
-                    Welcome_User(username)
+                    welcome_user(username)
                     break
                 else:
                     print("Invalid password. Please try again.")
@@ -94,7 +95,7 @@ def Login_Function():
             if 'conn' in locals():
                 conn.close()
 
-def Welcome_User(username):
+def welcome_user(username):
     print(f"Welcome {username}!")
     while True:
         print("Please select from the following options:")
@@ -197,7 +198,7 @@ def Welcome_User(username):
         else:
             print("Invalid selection. Please try again.")
 
-def Register_Function():
+def register_function():
     while True:
         # Get the username and password from the user
         username = input("Enter username: ")
@@ -251,6 +252,7 @@ def Register_Function():
 def main():
     # Menu loop
     while True:
+        # Display the menu
         print ("Welcome to the main menu")
         print ("Please select from the following options:")
         print ("1. Login")
@@ -262,9 +264,9 @@ def main():
         
         # Respond to selection
         if selection == "1":
-            Login_Function()
+            login_function()
         elif selection == "2":
-            Register_Function()
+            register_function()
         elif selection == "3":
             print ("Thank you for using the program")
             break
