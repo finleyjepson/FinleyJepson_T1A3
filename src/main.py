@@ -41,59 +41,52 @@ def monitor_performance(stdscr):
         print(f"An error occurred: {e}")
 
 
-def login_function():
+def login_function(username, password):
     failed_attempts = {}
-    while True:
-        try:
-            username = input("Username: ")
-            conn = sqlite3.connect('credentials.db')
-            cur = conn.cursor()
-            # Execute a SELECT statement to retrieve a password for the given username
-            cur.execute("SELECT password FROM credentials WHERE username=?", (username,))
-            result = cur.fetchone()
-            if result:
-                # Check if the user has exceeded the maximum number of failed attempts
-                if username in failed_attempts and failed_attempts[username] >= 3:
-                    print("You have exceeded the maximum number of failed attempts. Please try again later.")
-                    # Block the user from attempting to login again for 1 minute
-                    time.sleep(60)
-                    # Reset the failed attempts count
-                    failed_attempts[username] = 0
-                # Get the password
-                password = getpass()
-                # Hash the password
-                enc = password.encode()
-                hash1 = hashlib.md5(enc).hexdigest()
-                # Compare the hashes
-                if hash1 == result[0]:
-                    print("Login successful!")
-                    # Reset the failed attempts count
-                    failed_attempts[username] = 0
-                    conn.close()
-                    welcome_user(username)
-                    break
-                else:
-                    print("Invalid password. Please try again.")
-                    # Increment the failed attempts count
-                    if username in failed_attempts:
-                        failed_attempts[username] += 1
-                    else:
-                        failed_attempts[username] = 1
-                    try_again = input("Would you like to try again? (y/n): ")
-                    if try_again.lower() == "n":
-                        break
-            else:
-                print("Invalid username. Please try again.")
-                try_again = input("Would you like to try again? (y/n): ")
-                if try_again.lower() == "n":
-                    break
-        except sqlite3.Error as e:
-            print(f"An error occurred with the database: {e}")
-        except Exception as e:
-            print(f"An error occurred: {e}")
-        finally:
-            if 'conn' in locals():
+    try:
+        conn = sqlite3.connect('credentials.db')
+        cur = conn.cursor()
+        # Execute a SELECT statement to retrieve a password for the given username
+        cur.execute("SELECT password FROM credentials WHERE username=?", (username,))
+        result = cur.fetchone()
+        if result:
+            # Check if the user has exceeded the maximum number of failed attempts
+            if username in failed_attempts and failed_attempts[username] >= 3:
+                print("You have exceeded the maximum number of failed attempts. Please try again later.")
+                # Block the user from attempting to login again for 1 minute
+                time.sleep(60)
+                # Reset the failed attempts count
+                failed_attempts[username] = 0
+            # Hash the password
+            enc = password.encode()
+            hash1 = hashlib.md5(enc).hexdigest()
+            # Compare the hashes
+            if hash1 == result[0]:
+                print("Login successful!")
+                # Reset the failed attempts count
+                failed_attempts[username] = 0
                 conn.close()
+                return True
+            else:
+                print("Invalid password. Please try again.")
+                # Increment the failed attempts count
+                if username in failed_attempts:
+                    failed_attempts[username] += 1
+                else:
+                    failed_attempts[username] = 1
+                return False
+        else:
+            print("Invalid username. Please try again.")
+            return False
+    except sqlite3.Error as e:
+        print(f"An error occurred with the database: {e}")
+        return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 def welcome_user(username):
     print(f"Welcome {username}!")
@@ -217,8 +210,7 @@ def register_function(username, password, conf_password, db_connection):
     else:
         return "Password is not same as above!"
 
-
-def main():
+if __name__ == "__main__":
     # Menu loop
     while True:
         # Display the menu
@@ -233,18 +225,19 @@ def main():
         
         # Respond to selection
         if selection == "1":
-            login_function()
+            username = input("Username: ")
+            password = getpass()
+            if login_function(username, password):
+                welcome_user(username)
         elif selection == "2":
-            register_function()
+            username = input("Username: ")
+            password = getpass()
+            conf_password = getpass(prompt="Confirm Password: ")
+            conn = sqlite3.connect('credentials.db')
+            print(register_function(username, password, conf_password, conn))
+            conn.close()
         elif selection == "3":
             print ("Thank you for using the program")
             break
         else:
             print ("Invalid selection, please try again")
-
-try:
-    main()
-except Exception as e:
-    print(f"An error occurred: {e}")
-finally:
-    print("Program has ended.")
