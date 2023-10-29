@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, Mock
 import hashlib
-from maintest import UserManager
+from main import UserManager
 
 import unittest
 from unittest.mock import patch

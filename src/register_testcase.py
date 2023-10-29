@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from user_manager import UserManager
+from main import UserManager
 import hashlib
 
 class TestUserManager(unittest.TestCase):
