@@ -3,11 +3,6 @@ from unittest.mock import patch, Mock
 import hashlib
 from main import UserManager
 
-import unittest
-from unittest.mock import patch
-import hashlib
-from user_manager import UserManager
-
 class TestUserManager(unittest.TestCase):
 
     # This class contains unit tests for the UserManager class.
