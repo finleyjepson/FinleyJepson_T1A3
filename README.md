@@ -100,13 +100,13 @@ The implementation planning and tracking are managed using Trello. A detailed im
 ```
 
 Screenshot #1
-![Screenshot1](docs/screenshots/trello_1.png)
+![Screenshot1](docs/trello_1.png)
 Screenshot #2
-![Screenshot2](docs/screenshots/trello_2.png)
+![Screenshot2](docs/trello_2.png)
 Screenshot #3
-![Screenshot3](docs/screenshots/trello_3.png)
+![Screenshot3](docs/trello_3.png)
 Screenshot #4
-![Screenshot4](docs/screenshots/trello_4.png)
+![Screenshot4](docs/trello_4.png)
 
 ## Help Documentation
 
