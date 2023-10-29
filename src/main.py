@@ -198,56 +198,25 @@ def welcome_user(username):
         else:
             print("Invalid selection. Please try again.")
 
-def register_function():
-    while True:
-        # Get the username and password from the user
-        username = input("Enter username: ")
-        password = getpass()
-        conf_password = getpass(prompt="Confirm password: ")
-
-        # Confirm that the passwords match
-        if conf_password == password:
-            # Check if the password meets the complexity requirements
-            if len(password) < 8 or not any(char.isdigit() for char in password) or not any(char.isupper() for char in password):
-                print("Password must be at least 8 characters long and contain at least one uppercase letter and one digit. Please try again.")
-                try_again = input("Would you like to try again? (y/n): ")
-                if try_again.lower() == "n":
-                    break
-            else:
-                # Hash the password
-                enc = conf_password.encode()
-                hash1 = hashlib.md5(enc).hexdigest()
-
-                try:
-                    # Check if the username already exists in the database
-                    conn = sqlite3.connect('credentials.db')
-                    cur = conn.cursor()
-                    cur.execute("SELECT * FROM credentials WHERE username=?", (username,))
-                    result = cur.fetchone()
-                    if result:
-                        print("Username already exists. Please try again with a different username.")
-                        try_again = input("Would you like to try again? (y/n): ")
-                        if try_again.lower() == "n":
-                            break
-                    else:
-                        # Store the username and password in the database
-                        cur.execute("INSERT INTO credentials (username, password) VALUES (?, ?)", (username, hash1))
-                        conn.commit()
-                        conn.close()
-
-                        # Let the user know that they're registered
-                        print("You have registered successfully!")
-                        back_to_main = input("Would you like to go back to the main menu? (y/n): ")
-                        if back_to_main.lower() == "y":
-                            break
-                except sqlite3.Error as e:
-                    print(f"An error occurred with the database: {e}")
-                    break
+def register_function(username, password, conf_password, db_connection):
+    if conf_password == password:
+        if len(password) < 8 or not any(char.isdigit() for char in password) or not any(char.isupper() for char in password):
+            return "Password must be at least 8 characters long and contain at least one uppercase letter and one digit. Please try again."
         else:
-            print("Password is not same as above! \n")
-            try_again = input("Would you like to try again? (y/n): ")
-            if try_again.lower() == "n":
-                break
+            enc = conf_password.encode()
+            hash1 = hashlib.md5(enc).hexdigest()
+            cur = db_connection.cursor()
+            cur.execute("SELECT * FROM credentials WHERE username=?", (username,))
+            result = cur.fetchone()
+            if result:
+                return "Username already exists. Please try again with a different username."
+            else:
+                cur.execute("INSERT INTO credentials (username, password) VALUES (?, ?)", (username, hash1))
+                db_connection.commit()
+                return "You have registered successfully!"
+    else:
+        return "Password is not same as above!"
+
 
 def main():
     # Menu loop
