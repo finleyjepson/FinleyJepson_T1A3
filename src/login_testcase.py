@@ -1,3 +1,5 @@
+# important: Please run this test from the src folder of the project.
+
 import unittest
 from unittest.mock import patch, Mock
 import hashlib

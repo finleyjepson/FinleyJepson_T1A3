@@ -1,3 +1,5 @@
+# important: Please run this test from the src folder of the project.
+
 # Libraries
 import curses
 import re
